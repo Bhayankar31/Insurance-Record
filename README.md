@@ -16,12 +16,16 @@
     body {
       font-family: 'Inter', sans-serif;
     }
+    /* Modal scrollbar fix */
+    #passwordModal {
+      -webkit-overflow-scrolling: touch;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-  <main class="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 md:p-10">
+  <main class="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 md:p-10 relative">
     <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">
-      Insurance Form
+      Customer Information
     </h1>
     <form id="insuranceForm" class="space-y-6" novalidate>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -111,232 +115,124 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label for="price" class="block text-gray-700 font-medium mb-1"
-            >Price</label
-          >
-          <input
-            type="number"
-            id="price"
-            name="price"
-            min="0"
-            step="0.01"
-            required
-            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Price in ₹"
-          />
-        </div>
-        <div>
-          <label for="policy" class="block text-gray-700 font-medium mb-1"
-            >Policy Number</label
-          >
-          <input
-            type="text"
-            id="policy"
-            name="policy"
-            required
-            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Policy Number"
-          />
-        </div>
-        <div>
-          <label for="fileAttach" class="block text-gray-700 font-medium mb-1"
-            >Attach File</label
-          >
-          <input
-            type="file"
-            id="fileAttach"
-            name="fileAttach"
-            accept=".pdf,.jpg,.jpeg,.png"
-            class="w-full text-gray-700"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label for="startDate" class="block text-gray-700 font-medium mb-1"
-            >Starting Date (dd/mm/yyyy)</label
-          >
-          <input
-            type="text"
-            id="startDate"
-            name="startDate"
-            required
-            placeholder="dd/mm/yyyy"
-            pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}$"
-            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label for="period" class="block text-gray-700 font-medium mb-1"
-            >Period (Years)</label
-          >
-          <input
-            type="number"
-            id="period"
-            name="period"
-            min="0"
-            max="100"
-            required
-            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Number of years"
-          />
-        </div>
-        <div>
-          <label for="endDate" class="block text-gray-700 font-medium mb-1"
-            >Ending Date</label
-          >
-          <input
-            type="text"
-            id="endDate"
-            name="endDate"
-            readonly
-            class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 cursor-not-allowed"
-            placeholder="Auto-calculated"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label for="expiryDays" class="block text-gray-700 font-medium mb-1"
-          >Expiry Status</label
+      <div class="flex space-x-4">
+        <button
+          type="button"
+          id="savePdfBtn"
+          class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2"
         >
-        <input
-          type="text"
-          id="expiryDays"
-          name="expiryDays"
-          readonly
-          class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 cursor-not-allowed"
-          placeholder="Auto-calculated"
-        />
+          <i class="fas fa-save"></i>
+          <span>Save</span>
+        </button>
+        <button
+          type="button"
+          id="shareBtn"
+          class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2"
+        >
+          <i class="fas fa-share-alt"></i>
+          <span>Share</span>
+        </button>
       </div>
-
-      <button
-        type="button"
-        id="savePdfBtn"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors duration-200"
-      >
-        Save Form Data as PDF
-      </button>
     </form>
+
+    <!-- Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Enter Password to Save</h2>
+        <input
+          type="password"
+          id="modalPassword"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Password"
+        />
+        <div class="flex justify-end space-x-4">
+          <button id="cancelPasswordBtn" class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition">
+            Cancel
+          </button>
+          <button id="submitPasswordBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Confirmation -->
+    <div id="saveConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Data Saved Successfully!</h2>
+        <button id="closeSaveConfirmation" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+          Close
+        </button>
+      </div>
+    </div>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    const { jsPDF } = window.jspdf;
-
     const form = document.getElementById('insuranceForm');
-    const startDateInput = form.startDate;
-    const periodInput = form.period;
-    const endDateInput = form.endDate;
-    const expiryDaysInput = form.expiryDays;
-    const savePdfBtn = document.getElementById('savePdfBtn');
+    const saveBtn = document.getElementById('savePdfBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const passwordModal = document.getElementById('passwordModal');
+    const modalPasswordInput = document.getElementById('modalPassword');
+    const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+    const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+    const saveConfirmation = document.getElementById('saveConfirmation');
+    const closeSaveConfirmation = document.getElementById('closeSaveConfirmation');
 
-    // Parse dd/mm/yyyy → Date object
-    function parseDateDMY(dateStr) {
-      const [dd, mm, yyyy] = dateStr.split('/').map(Number);
-      const date = new Date(yyyy, mm - 1, dd);
-      return (date.getDate() === dd && date.getMonth() === mm - 1 && date.getFullYear() === yyyy) ? date : null;
-    }
+    // Show password modal on save button click
+    saveBtn.addEventListener('click', () => {
+      modalPasswordInput.value = '';
+      passwordModal.classList.remove('hidden');
+      modalPasswordInput.focus();
+    });
 
-    // Format Date object → dd/mm/yyyy
-    function formatDateDMY(date) {
-      const dd = String(date.getDate()).padStart(2, '0');
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const yyyy = date.getFullYear();
-      return `${dd}/${mm}/${yyyy}`;
-    }
+    // Cancel password modal
+    cancelPasswordBtn.addEventListener('click', () => {
+      passwordModal.classList.add('hidden');
+    });
 
-    function updateEndDateAndExpiry() {
-      const startDateStr = startDateInput.value.trim();
-      const periodYears = parseInt(periodInput.value, 10);
-
-      if (!startDateStr || isNaN(periodYears) || periodYears < 0) {
-        endDateInput.value = '';
-        expiryDaysInput.value = '';
+    // Submit password and save data in localStorage
+    submitPasswordBtn.addEventListener('click', () => {
+      const password = modalPasswordInput.value.trim();
+      if (!password) {
+        alert('Please enter a password to save.');
+        modalPasswordInput.focus();
         return;
       }
 
-      const startDate = parseDateDMY(startDateStr);
-      if (!startDate) {
-        endDateInput.value = '';
-        expiryDaysInput.value = '';
-        return;
-      }
+      // You can add password validation here if needed
 
-      const endDate = new Date(startDate);
-      endDate.setFullYear(endDate.getFullYear() + periodYears);
-      endDate.setDate(endDate.getDate() - 1);
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      endDate.setHours(0, 0, 0, 0);
-
-      const diffDays = Math.floor((endDate - today) / (1000 * 60 * 60 * 24));
-
-      endDateInput.value = formatDateDMY(endDate);
-      expiryDaysInput.value = diffDays > 0
-        ? `${diffDays} day(s) left`
-        : diffDays === 0
-          ? 'Expires today'
-          : `${Math.abs(diffDays)} day(s) expired`;
-    }
-
-    startDateInput.addEventListener('input', updateEndDateAndExpiry);
-    periodInput.addEventListener('input', updateEndDateAndExpiry);
-
-    savePdfBtn.addEventListener('click', () => {
-      if (!parseDateDMY(startDateInput.value.trim())) {
-        alert('Please enter a valid Starting Date in dd/mm/yyyy format.');
-        startDateInput.focus();
-        return;
-      }
-
-      if (!parseDateDMY(endDateInput.value.trim())) {
-        alert('Calculated Ending Date is invalid.');
-        return;
-      }
-
+      // Save form data in localStorage (simulate website save)
       const formData = {
-        Name: form.name.value.trim(),
-        "Mobile Number": form.mobile.value.trim(),
-        Address: form.address.value.trim(),
-        "Aadhar Number": form.adhar.value.trim(),
-        "Chechis Number": form.chechis.value.trim(),
-        "Motor Number": form.motor.value.trim(),
-        Price: form.price.value.trim(),
-        "Policy Number": form.policy.value.trim(),
-        "Starting Date": startDateInput.value.trim(),
-        Period: periodInput.value.trim(),
-        "Ending Date": endDateInput.value.trim(),
-        "Expiry Status": expiryDaysInput.value.trim(),
-        "File Attached": form.fileAttach.files.length > 0 ? form.fileAttach.files[0].name : "No file attached"
+        name: form.name.value.trim(),
+        mobile: form.mobile.value.trim(),
+        address: form.address.value.trim(),
+        adhar: form.adhar.value.trim(),
+        chechis: form.chechis.value.trim(),
+        motor: form.motor.value.trim(),
+        savedAt: new Date().toISOString(),
+        password: password // optionally store password hash or omit storing password in real apps
       };
 
-      const doc = new jsPDF();
-
-      doc.setFontSize(18);
-      doc.text("Insurance Form Data", 105, 20, null, null, "center");
-
-      doc.setFontSize(12);
-      let y = 35;
-      const lineHeight = 10;
-      const pageHeight = doc.internal.pageSize.height;
-
-      for (const [key, value] of Object.entries(formData)) {
-        const text = `${key}: ${value}`;
-        const splitText = doc.splitTextToSize(text, 180);
-        if (y + splitText.length * lineHeight > pageHeight - 20) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(splitText, 15, y);
-        y += splitText.length * lineHeight;
+      try {
+        localStorage.setItem('insuranceFormData', JSON.stringify(formData));
+      } catch (e) {
+        alert('Failed to save data locally.');
+        passwordModal.classList.add('hidden');
+        return;
       }
 
-      doc.save("insurance-record.pdf");
+      passwordModal.classList.add('hidden');
+      saveConfirmation.classList.remove('hidden');
+    });
+
+    // Close save confirmation modal
+    closeSaveConfirmation.addEventListener('click', () => {
+      saveConfirmation.classList.add('hidden');
+    });
+
+    // Share button functionality (optional)
+    shareBtn.addEventListener('click', () => {
+      alert('Sharing functionality is not implemented in this version.');
     });
   </script>
 </body>
