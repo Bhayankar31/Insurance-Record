@@ -1,0 +1,224 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insurance Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    #passwordModal {
+      -webkit-overflow-scrolling: touch;
+    }
+    .no-print {
+      display: block;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <main id="formContent" class="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 md:p-10 relative">
+    <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Customer Information</h1>
+    <form id="insuranceForm" class="space-y-6" novalidate>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="name">Name</label>
+          <input id="name" type="text" name="name" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Full Name" />
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="mobile">Mobile Number</label>
+          <input id="mobile" type="tel" name="mobile" pattern="[0-9]{10,15}" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. 9876543210" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1" for="address">Address</label>
+        <textarea id="address" name="address" rows="3" class="w-full rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Full address"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="adhar">Aadhar Number</label>
+          <input id="adhar" type="text" name="adhar" pattern="[0-9]{12}" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="12-digit Aadhar" />
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="chechis">Chechis Number</label>
+          <input id="chechis" type="text" name="chechis" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Chechis Number" />
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="motor">Motor Number</label>
+          <input id="motor" type="text" name="motor" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Motor Number" />
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 no-print mt-6">
+        <button type="button" id="savePdfBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2">
+          <i class="fas fa-save"></i><span>Save</span>
+        </button>
+        <button type="button" id="shareBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2">
+          <i class="fas fa-share-alt"></i><span>Share</span>
+        </button>
+      </div>
+    </form>
+
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Enter Password to Save</h2>
+        <input type="password" id="modalPassword" class="w-full rounded-md border border-gray-300 px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Password" />
+        <div class="flex justify-end space-x-4">
+          <button id="cancelPasswordBtn" class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition">Cancel</button>
+          <button id="submitPasswordBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="saveConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Data Saved Successfully!</h2>
+        <button id="closeSaveConfirmation" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Close</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('insuranceForm');
+    const saveBtn = document.getElementById('savePdfBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const passwordModal = document.getElementById('passwordModal');
+    const modalPasswordInput = document.getElementById('modalPassword');
+    const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+    const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+    const saveConfirmation = document.getElementById('saveConfirmation');
+    const closeSaveConfirmation = document.getElementById('closeSaveConfirmation');
+    const formContent = document.getElementById('formContent');
+
+    saveBtn.addEventListener('click', () => {
+      modalPasswordInput.value = '';
+      passwordModal.classList.remove('hidden');
+      modalPasswordInput.focus();
+    });
+
+    cancelPasswordBtn.addEventListener('click', () => {
+      passwordModal.classList.add('hidden');
+    });
+
+    submitPasswordBtn.addEventListener('click', () => {
+      const password = modalPasswordInput.value.trim();
+      if (!password) {
+        alert('Please enter a password to save.');
+        modalPasswordInput.focus();
+        return;
+      }
+
+      const formData = {};
+      Array.from(form.elements).forEach(el => {
+        if (el.name) {
+          formData[el.name] = el.value.trim();
+        }
+      });
+      formData.savedAt = new Date().toISOString();
+      formData.password = password;
+
+      try {
+        localStorage.setItem('insuranceFormData', JSON.stringify(formData));
+      } catch (e) {
+        alert('Failed to save data locally.');
+        passwordModal.classList.add('hidden');
+        return;
+      }
+
+      passwordModal.classList.add('hidden');
+      saveConfirmation.classList.remove('hidden');
+    });
+
+    closeSaveConfirmation.addEventListener('click', () => {
+      saveConfirmation.classList.add('hidden');
+    });
+
+    shareBtn.addEventListener('click', async () => {
+      const clone = formContent.cloneNode(true);
+      const buttons = clone.querySelectorAll('.no-print');
+      buttons.forEach(btn => btn.remove());
+
+      const inputs = clone.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        const wrapper = document.createElement('div');
+
+        const labelText = input.closest('div')?.querySelector('label')?.textContent || '';
+        const labelEl = document.createElement('label');
+        labelEl.textContent = labelText;
+        labelEl.style.display = 'block';
+        labelEl.style.marginBottom = '0.25rem';
+        labelEl.style.fontWeight = '600';
+        labelEl.style.color = '#374151';
+
+        const valueEl = document.createElement('div');
+        valueEl.textContent = input.value.trim() || ' ';
+        valueEl.style.border = '1px solid #d1d5db';
+        valueEl.style.borderRadius = '0.375rem';
+        valueEl.style.padding = '0.5rem 0.75rem';
+        valueEl.style.minHeight = input.tagName.toLowerCase() === 'textarea' ? '4rem' : '2.5rem';
+        valueEl.style.whiteSpace = input.tagName.toLowerCase() === 'textarea' ? 'pre-wrap' : 'normal';
+        valueEl.style.backgroundColor = 'white';
+        valueEl.style.width = '100%';
+        valueEl.style.boxSizing = 'border-box';
+        valueEl.style.fontSize = '1rem';
+        valueEl.style.fontFamily = 'Inter, sans-serif';
+        valueEl.style.lineHeight = '1.5rem';
+
+        wrapper.appendChild(labelEl);
+        wrapper.appendChild(valueEl);
+        input.closest('div')?.replaceWith(wrapper);
+      });
+
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '-9999px';
+      container.style.left = '-9999px';
+      container.style.width = formContent.offsetWidth + 'px';
+      container.appendChild(clone);
+      document.body.appendChild(container);
+
+      const canvas = await html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#fff' });
+      const imgData = canvas.toDataURL('image/png');
+      document.body.removeChild(container);
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      const blob = pdf.output('blob');
+      const userName = form.elements['name'].value.trim() || 'insurance-form';
+      const fileName = `${userName.replace(/\s+/g, '_')}.pdf`;
+      const file = new File([blob], fileName, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: 'Insurance Form',
+            text: 'Please find the filled insurance form attached.',
+            files: [file]
+          });
+        } catch (error) {
+          alert('Sharing failed: ' + error);
+        }
+      } else {
+        alert('Sharing not supported on this browser. Please try Chrome or Edge on a mobile device.');
+      }
+    });
+  </script>
+</body>
+</html>
